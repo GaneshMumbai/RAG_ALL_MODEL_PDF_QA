@@ -12,6 +12,7 @@ import os
 load_dotenv()
 APP_PASSWORD = os.getenv("SMARTPDF_PASSWORD")
 
+# Prompt template
 PROMPT_TEMPLATE = """
 You are an expert research assistant. Use the provided answers in a concise, shorter manner.
 If unsure, state that you don't know. Be concise and factual (max 3 sentences).
@@ -39,19 +40,21 @@ model_choice = st.sidebar.selectbox(
 
 # Proceed only if password is correct
 if user_password == APP_PASSWORD:
-    # Initialize model objects based on selection
+    # Initialize model objects
     EMBEDDING_MODEL = OllamaEmbeddings(model=model_choice)
     LANGUAGE_MODEL = OllamaLLM(model=model_choice)
     DOCUMENT_VECTOR_DB = InMemoryVectorStore(EMBEDDING_MODEL)
 
     # Main UI
-    # st.markdown("<h1 style='text-align:center; color:pink;'>📘 AI-Powered SmartPDF Expert</h1>", unsafe_allow_html=True)
     st.title("📑 SmartPDF Expert")
     st.markdown("### Intelligent Expert Document Assistant")
     st.markdown("---")
 
+    # Ensure storage directory exists
+    os.makedirs(PDF_STORAGE_PATH, exist_ok=True)
+
     def save_uploaded_file(uploaded_file):
-        file_path = PDF_STORAGE_PATH + uploaded_file.name
+        file_path = os.path.join(PDF_STORAGE_PATH, uploaded_file.name)
         with open(file_path, "wb") as file:
             file.write(uploaded_file.getbuffer())
         return file_path
